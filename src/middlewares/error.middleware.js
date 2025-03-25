@@ -1,8 +1,20 @@
 import mongoose from "mongoose";
 import { ApiError } from "../utils/ApiError.js";
+import multer from "multer"; // Import Multer to check error type
 
 const errorHandler = (err, req, res, next) => {
     let error = err;
+
+    // Handle Multer Errors
+    if (error instanceof multer.MulterError) {
+        if (error.code === "LIMIT_UNEXPECTED_FILE") {
+            error = new ApiError(400, "You can only upload up to 5 media files.");
+        } else if (error.code === "LIMIT_FILE_SIZE") {
+            error = new ApiError(400, "File size exceeds the allowed limit.");
+        } else {
+            error = new ApiError(400, "Invalid file upload.");
+        }
+    }
 
     // Handle Mongoose CastError (Invalid ID)
     if (error?.name === "CastError") {

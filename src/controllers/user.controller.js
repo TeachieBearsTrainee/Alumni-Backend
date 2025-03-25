@@ -277,4 +277,4 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 })
 
 
-export { registerUser, loginUser, refreshAccessToken, logoutUser }
+export { registerUser, loginUser, refreshAccessToken, logoutUser, changeCurrentPassword, generateAccessAndRefereshTokens, deleteLocalFiles }

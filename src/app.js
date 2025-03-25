@@ -23,6 +23,7 @@ app.use(cookieParser());
 
 // Import routes
 import userRoute from "./routes/user.routes.js";
+import adminRoute from "./routes/admin.routes.js";
 import { verifyJWT } from "./middlewares/auth.middleware.js";
 import { refreshAccessToken } from "./controllers/user.controller.js";
 import { authorizedRole } from "./middlewares/role.middleware.js";
@@ -30,6 +31,7 @@ import { errorHandler } from "./middlewares/error.middleware.js";
 
 // Routes
 app.use("/api/v1/", userRoute);
+app.use("/api/v1/admin",refreshAccessToken, verifyJWT, authorizedRole("admin"), adminRoute);
 app.get("/api/v1/check", refreshAccessToken, verifyJWT, authorizedRole("user"), (req, res) => {
     res.send("authorized");
 });
