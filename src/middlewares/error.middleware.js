@@ -8,13 +8,16 @@ const errorHandler = (err, req, res, next) => {
     // Handle Multer Errors
     if (error instanceof multer.MulterError) {
         if (error.code === "LIMIT_UNEXPECTED_FILE") {
-            error = new ApiError(400, "You can only upload up to 5 media files.");
+            console.log("LIMIT_UNEXPECTED_FILE", error);
+            error = new ApiError(400, "Unexpected file field. Please use 'media' as the key for file uploads.");
         } else if (error.code === "LIMIT_FILE_SIZE") {
-            error = new ApiError(400, "File size exceeds the allowed limit.");
+            error = new ApiError(400, "File size exceeds the allowed limit of 50MB.");
+        } else if (error.code === "LIMIT_FILE_COUNT") {
+            error = new ApiError(400, "Too many files uploaded. Please upload a maximum of 5 files.");
         } else {
-            error = new ApiError(400, "Invalid file upload.");
+            error = new ApiError(400, "File upload error.");
         }
-    }
+    }    
 
     // Handle Mongoose CastError (Invalid ID)
     if (error?.name === "CastError") {

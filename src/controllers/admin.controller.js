@@ -93,52 +93,54 @@ const logoutAdmin = asyncHandler(async (req, res) => {
 })
 
 const createPost = asyncHandler(async (req, res) => {
-    const { content } = req.body;
-    const filePath = req.files?.media; // Get uploaded files
-
-    if (!content && (!req.files || req.files.media.length === 0)) {
-        return res.status(400).json(new ApiResponse(400, null, "Post must have content or at least one media file"));
-    }
-
-     // ✅ Restrict media files to a maximum of 5
-     if (filePath && filePath.length > 5) {
-        return res.status(400).json(new ApiResponse(400, null, "A post cannot have more than 5 media files"));
-    }
-
-    let mediaUrls = [];
-
     try {
-        if (filePath) {
-            for (let i = 0; i < filePath.length; i++) {
-                const fileType = filePath[i].mimetype.startsWith("image") ? "image" : "video";
-                const uploadedFile = await uploadOnCloudinary(filePath[i].path, req.user.email, fileType);
-                
-                // ✅ Store the secure URL in the array
-                mediaUrls.push(uploadedFile.secure_url);
-            }
+        const { content } = req.body;
+        const files = req.files?.media || []; // Ensure `files` is always an array
+
+        // ✅ Validate post content or media presence
+        if (!content && files.length === 0) {
+            return res.status(400).json(new ApiResponse(400, null, "Post must have content or at least one media file"));
         }
 
-        // ✅ Create and store the post in the database
+        // ✅ Restrict media files to a maximum of 5
+        if (files.length > 5) {
+            return res.status(400).json(new ApiResponse(400, null, "A post cannot have more than 5 media files"));
+        }
+
+        let mediaUrls = [];
+
+        // ✅ Upload files if present
+        for (const file of files) {
+            if (!file?.path) continue; // Safeguard against unexpected `undefined` files
+
+            const fileType = file.mimetype.startsWith("image") ? "image" : "video";
+            const uploadedFile = await uploadOnCloudinary(file.path, req.user.email, fileType);
+
+            mediaUrls.push(uploadedFile.secure_url);
+        }
+
+        // ✅ Store the post in the database
         const newPost = await Post.create({
             content,
-            media: mediaUrls
+            media: mediaUrls,
         });
 
         return res.status(201).json(new ApiResponse(201, newPost, "Post created successfully"));
     } catch (error) {
-        // console.log("Error creating post:", error);
+        console.error("Error creating post:", error);
 
-        // Cleanup Cloudinary uploads in case of error
-        for (const url of mediaUrls) {
-            await deleteOnCloudinary(url);
+        // ✅ Cleanup Cloudinary uploads in case of error
+        await Promise.all(mediaUrls.map(url => deleteOnCloudinary(url)));
+
+        // ✅ Cleanup local files safely
+        if (req.files?.media) {
+            await Promise.all(req.files.media.map(file => fs.unlink(file.path).catch(() => {})));
         }
 
-        // Cleanup local files
-        await Promise.all(filePath.map(file => fs.unlink(file.path).catch(() => {})));
-
-        throw new ApiError(500, "Failed to create post");
+        next(new ApiError(500, "Failed to create post"));
     }
 });
+
 
 
 
