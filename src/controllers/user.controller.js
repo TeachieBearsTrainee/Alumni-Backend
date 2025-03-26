@@ -7,6 +7,7 @@ import { Student } from "../models/student.models.js";
 import mongoose from "mongoose";
 import { deleteOnCloudinary, uploadOnCloudinary } from "../utils/cloudinary.js";
 import fs from 'fs/promises';
+import { Post } from "../models/post.model.js";
 
 const deleteLocalFiles = async (filePaths) => {
     // console.log("filePaths (before check):", filePaths);
@@ -51,12 +52,12 @@ const registerUser = asyncHandler(async (req, res) => {
     const { email, password, ...studentData } = req.body;
     if (!password) {
         await deleteLocalFiles(req.files?.graduationCertificate?.[0]?.path);
-        return res.status(400).json(new ApiResponse(400,null, "Password is required"));
+        return res.status(400).json(new ApiResponse(400, null, "Password is required"));
     }
 
     if (!email) {
         await deleteLocalFiles(req.files?.graduationCertificate?.[0]?.path);
-        return res.status(400).json(new ApiResponse(400,null, "Email is required"));
+        return res.status(400).json(new ApiResponse(400, null, "Email is required"));
     }
 
     const existingUser = await User.findOne({ email }).session(session);
@@ -276,5 +277,34 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, "Password changed successfully"))
 })
 
+const getPosts = asyncHandler(async (req, res) => {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
 
-export { registerUser, loginUser, refreshAccessToken, logoutUser, changeCurrentPassword, generateAccessAndRefereshTokens, deleteLocalFiles }
+    const totalPosts = await Post.countDocuments();
+    const totalPages = Math.ceil(totalPosts / limit);
+
+    // Fetch posts with pagination
+    const posts = await Post.find()
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .select("-__v");
+
+    if (posts.length === 0) {
+        throw new ApiError(404, "No posts found");
+    }
+
+    // Use ApiResponse for structured response
+    return res.status(200).json(
+        new ApiResponse(200, {
+            currentPage: page,
+            totalPages,
+            totalPosts,
+            posts
+        }, "Posts fetched successfully")
+    );
+});
+
+
+
+export { registerUser, loginUser, refreshAccessToken, logoutUser, changeCurrentPassword, generateAccessAndRefereshTokens, deleteLocalFiles, getPosts }

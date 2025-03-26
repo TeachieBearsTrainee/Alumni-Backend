@@ -162,6 +162,63 @@ Authorization: Bearer <ACCESS_TOKEN>
 
 ---
 
+## 5. **Get Post**
+
+## 📍 **Endpoint**  
+```
+GET https://alumni-backend-kjdc.onrender.com/api/v1/getPosts
+```
+
+## 📥 **Request Parameters**  
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `page` | Number | `1` | Page number for pagination |
+| `limit` | Number | `5` | Number of posts per page |
+
+### 🔹 **Example Request**  
+```
+GET http://localhost:6001/api/v1/getPosts?page=2&limit=10
+```
+
+---
+
+## 📤 **Response**  
+
+### ✅ **Success (200 OK)**  
+```json
+{
+  "success": true,
+  "message": "Posts fetched successfully",
+  "data": {
+    "currentPage": 2,
+    "totalPages": 5,
+    "totalPosts": 50,
+    "posts": [
+      {
+        "_id": "65a8b69c2f6e4a001c5a8d34",
+        "content": "This is a sample post",
+        "media": ["image1.jpg"]
+      }
+    ]
+  }
+}
+```
+
+### ❌ **Error Responses**  
+- `404 Not Found`: No posts available  
+- `500 Internal Server Error`: Something went wrong  
+
+---
+
+## ⚙️ **How to Use**
+1. Call the API with optional `page` and `limit` query params.  
+2. Use the `data.posts` array to display posts in the frontend.  
+3. Implement pagination using `currentPage` and `totalPages`.  
+
+---
+
+
+
 ## Error Handling
 
 ### Common Errors:
