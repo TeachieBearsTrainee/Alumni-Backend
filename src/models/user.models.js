@@ -8,7 +8,7 @@ const allowedDomains = ["gmail.com", "yahoo.com", "outlook.com", "hotmail.com"];
 const userSchema = new Schema({
     email: {
         type: String,
-        required: [true, 'Please enter your email'],
+        // required: [true, 'Please enter your email'],
         unique: [true, "Email already exists"],
         lowercase: true,
         trim: true,
@@ -24,9 +24,9 @@ const userSchema = new Schema({
     },
     password: {
         type: String,
-        required: [true, "Password is required"],
-        minlength: [8, "Password must be at least 8 characters"],
-        maxlength: [12, "Password must be less than 12 characters"],
+        // required: [true, "Password is required"],
+        // minlength: [8, "Password must be at least 8 characters"],
+        // maxlength: [12, "Password must be less than 12 characters"],
     },
     refreshToken: {
         type: String

@@ -50,15 +50,15 @@ const registerUser = asyncHandler(async (req, res) => {
     session.startTransaction();
 
     const { email, password, ...studentData } = req.body;
-    if (!password) {
-        await deleteLocalFiles(req.files?.graduationCertificate?.[0]?.path);
-        return res.status(400).json(new ApiResponse(400, null, "Password is required"));
-    }
+    // if (!password) {
+    //     await deleteLocalFiles(req.files?.graduationCertificate?.[0]?.path);
+    //     return res.status(400).json(new ApiResponse(400, null, "Password is required"));
+    // }
 
-    if (!email) {
-        await deleteLocalFiles(req.files?.graduationCertificate?.[0]?.path);
-        return res.status(400).json(new ApiResponse(400, null, "Email is required"));
-    }
+    // if (!email) {
+    //     await deleteLocalFiles(req.files?.graduationCertificate?.[0]?.path);
+    //     return res.status(400).json(new ApiResponse(400, null, "Email is required"));
+    // }
 
     const existingUser = await User.findOne({ email }).session(session);
     if (existingUser) {
