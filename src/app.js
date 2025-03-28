@@ -5,8 +5,26 @@ import morgan from "morgan";
 
 const app = express();
 
+// app.use(cors({
+//     origin: "http://localhost:5173",
+//     methods:"*",
+//     credentials: true,
+//     allowedHeaders: ["Content-Type", "Authorization"]
+// }));
+
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://alumni-client-rajendra.vercel.app"
+];
+
 app.use(cors({
-    origin: "http://localhost:5173",
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
     methods:"*",
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"]
