@@ -14,7 +14,8 @@ const app = express();
 
 const allowedOrigins = [
     "http://localhost:5173",
-    "https://alumni-client-rajendra.vercel.app"
+    "https://alumni-client-rajendra.vercel.app",
+    "https://alumni-client-delta.vercel.app"
 ];
 
 app.use(cors({
