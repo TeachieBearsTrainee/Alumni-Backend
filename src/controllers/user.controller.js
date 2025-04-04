@@ -213,7 +213,7 @@ const logoutUser = asyncHandler(async (req, res) => {
 })
 
 const refreshAccessToken = asyncHandler(async (req, res, next) => {
-    const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken;
+    const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken || req.headers?.authorization?.replace("Bearer ", "");
 
     if (!incomingRefreshToken) {
         return next(new ApiError(401, "Refresh token is required"));
